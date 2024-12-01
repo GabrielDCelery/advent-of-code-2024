@@ -4,7 +4,7 @@ init:
 
 .PHONY: test
 test:
-	@go test ./...
+	@go test -v ./...
 
 .PHONY: solve-day-1
 solve-day-1:
