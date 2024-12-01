@@ -1,5 +1,9 @@
 # Advent of Code 2024
 
+## What is this repository for?
+
+This is a repo to solve the puzzles published on [Advent of Code 2024](https://adventofcode.com/2024).
+
 ## What do you need to run this?
 
 Have `go 1.22` and `make` installed.
