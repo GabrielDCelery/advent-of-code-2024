@@ -10,6 +10,8 @@ Have `go 1.22` and `make` installed.
 
 ## Running the app 
 
+The puzzles' inputs are stored in the `inputs` folder. As the data is specific to each competitor, if you want this repository to solve your puzzle, you must first replace the files with your own.
+
 To obtain the solution for a specific day, execute the corresponding make command.
 
 Example:
