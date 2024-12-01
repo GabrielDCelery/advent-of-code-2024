@@ -10,7 +10,7 @@ Have `go 1.22` and `make` installed.
 
 ## Running the app 
 
-Run the appropriate make commands for getting the solution for a particular day.
+To obtain the solution for a specific day, execute the corresponding make command.
 
 Example:
 
@@ -25,15 +25,15 @@ Day 1, part 1 solution: 1941353
 Day 1, part 2 solution: 22539317
 ```
 
-## Using dev environment
+## Using the dev environment
 
-For installing dependencies:
+To install dependencies:
 
 ```sh
 make init
 ```
 
-For running tests:
+To run tests:
 
 ```sh
 make test
