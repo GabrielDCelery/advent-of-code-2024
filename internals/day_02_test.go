@@ -2,6 +2,8 @@ package internals
 
 import (
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func Test_areLevelsSafe(t *testing.T) {
@@ -14,11 +16,7 @@ func Test_areLevelsSafe(t *testing.T) {
 			result := areLevelsSafe(levels)
 
 			// Then
-			expected := true
-
-			if result != expected {
-				t.Errorf("got %t, expected %t", result, expected)
-			}
+			assert.Equal(t, true, result)
 		})
 
 		t.Run("Safe because the levels are all increasing by 1, 2, or 3", func(t *testing.T) {
@@ -29,11 +27,7 @@ func Test_areLevelsSafe(t *testing.T) {
 			result := areLevelsSafe(levels)
 
 			// Then
-			expected := true
-
-			if result != expected {
-				t.Errorf("got %t, expected %t", result, expected)
-			}
+			assert.Equal(t, true, result)
 		})
 
 		t.Run("Unsafe because 2 7 is an increase of 5", func(t *testing.T) {
@@ -44,11 +38,7 @@ func Test_areLevelsSafe(t *testing.T) {
 			result := areLevelsSafe(levels)
 
 			// Then
-			expected := false
-
-			if result != expected {
-				t.Errorf("got %t, expected %t", result, expected)
-			}
+			assert.Equal(t, false, result)
 		})
 
 		t.Run("Unsafe because 6 2 is a decrease of 4", func(t *testing.T) {
@@ -59,11 +49,7 @@ func Test_areLevelsSafe(t *testing.T) {
 			result := areLevelsSafe(levels)
 
 			// Then
-			expected := false
-
-			if result != expected {
-				t.Errorf("got %t, expected %t", result, expected)
-			}
+			assert.Equal(t, false, result)
 		})
 
 		t.Run("Unsafe because 1 3 is increasing but 3 2 is decreasing", func(t *testing.T) {
@@ -74,11 +60,7 @@ func Test_areLevelsSafe(t *testing.T) {
 			result := areLevelsSafe(levels)
 
 			// Then
-			expected := false
-
-			if result != expected {
-				t.Errorf("got %t, expected %t", result, expected)
-			}
+			assert.Equal(t, false, result)
 		})
 
 		t.Run("Unsafe because 4 4 is neither an increase or a decrease", func(t *testing.T) {
@@ -89,11 +71,7 @@ func Test_areLevelsSafe(t *testing.T) {
 			result := areLevelsSafe(levels)
 
 			// Then
-			expected := false
-
-			if result != expected {
-				t.Errorf("got %t, expected %t", result, expected)
-			}
+			assert.Equal(t, false, result)
 		})
 	})
 }
@@ -108,11 +86,7 @@ func Test_areLevelsSafeWithDampener(t *testing.T) {
 			result := areLevelsSafeUsingDampener(levels)
 
 			// Then
-			expected := true
-
-			if result != expected {
-				t.Errorf("got %t, expected %t", result, expected)
-			}
+			assert.Equal(t, true, result)
 		})
 
 		t.Run("Safe without removing any level", func(t *testing.T) {
@@ -123,11 +97,7 @@ func Test_areLevelsSafeWithDampener(t *testing.T) {
 			result := areLevelsSafeUsingDampener(levels)
 
 			// Then
-			expected := true
-
-			if result != expected {
-				t.Errorf("got %t, expected %t", result, expected)
-			}
+			assert.Equal(t, true, result)
 		})
 
 		t.Run("Unsafe regardless of which level is removed", func(t *testing.T) {
@@ -138,11 +108,7 @@ func Test_areLevelsSafeWithDampener(t *testing.T) {
 			result := areLevelsSafeUsingDampener(levels)
 
 			// Then
-			expected := false
-
-			if result != expected {
-				t.Errorf("got %t, expected %t", result, expected)
-			}
+			assert.Equal(t, false, result)
 		})
 
 		t.Run("Unsafe regardless of which level is removed", func(t *testing.T) {
@@ -153,11 +119,7 @@ func Test_areLevelsSafeWithDampener(t *testing.T) {
 			result := areLevelsSafeUsingDampener(levels)
 
 			// Then
-			expected := false
-
-			if result != expected {
-				t.Errorf("got %t, expected %t", result, expected)
-			}
+			assert.Equal(t, false, result)
 		})
 
 		t.Run("Safe by removing the second level 3", func(t *testing.T) {
@@ -168,11 +130,7 @@ func Test_areLevelsSafeWithDampener(t *testing.T) {
 			result := areLevelsSafeUsingDampener(levels)
 
 			// Then
-			expected := true
-
-			if result != expected {
-				t.Errorf("got %t, expected %t", result, expected)
-			}
+			assert.Equal(t, true, result)
 		})
 
 		t.Run("Safe by removing the third level 4", func(t *testing.T) {
@@ -183,11 +141,7 @@ func Test_areLevelsSafeWithDampener(t *testing.T) {
 			result := areLevelsSafeUsingDampener(levels)
 
 			// Then
-			expected := true
-
-			if result != expected {
-				t.Errorf("got %t, expected %t", result, expected)
-			}
+			assert.Equal(t, true, result)
 		})
 	})
 }

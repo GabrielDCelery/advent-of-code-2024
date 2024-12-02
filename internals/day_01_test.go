@@ -2,6 +2,8 @@ package internals
 
 import (
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func Test_calculateDistancesBetween(t *testing.T) {
@@ -11,18 +13,11 @@ func Test_calculateDistancesBetween(t *testing.T) {
 		secondList := []int{4, 3, 5, 3, 9, 3}
 
 		// When
-		dist, err := calcualteDistancesBetween(firstList, secondList)
+		result, err := calcualteDistancesBetween(firstList, secondList)
 
 		// Then
-		expected := 11
-
-		if err != nil {
-			t.Errorf("Unexpexted error has happened: %s", err.Error())
-		}
-
-		if dist != expected {
-			t.Errorf("got %d, expected %d", dist, expected)
-		}
+		assert.NoError(t, err)
+		assert.Equal(t, 11, result)
 	})
 }
 
@@ -33,17 +28,10 @@ func Test_calculateSimilarityScore(t *testing.T) {
 		secondList := []int{4, 3, 5, 3, 9, 3}
 
 		// When
-		dist, err := calculateSimilarityScore(firstList, secondList)
+		result, err := calculateSimilarityScore(firstList, secondList)
 
 		// Then
-		expected := 31
-
-		if err != nil {
-			t.Errorf("Unexpexted error has happened: %s", err.Error())
-		}
-
-		if dist != expected {
-			t.Errorf("got %d, expected %d", dist, expected)
-		}
+		assert.NoError(t, err)
+		assert.Equal(t, 31, result)
 	})
 }
