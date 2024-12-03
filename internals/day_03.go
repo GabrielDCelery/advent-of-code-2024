@@ -66,7 +66,7 @@ func executeInstructions(instructions []Instruction) (int, error) {
 		switch instruction.Id {
 		case MulID:
 			if isOn {
-				value, err := executeMulInstruction([]byte(instruction.Value))
+				value, err := executeMulInstruction(instruction)
 				if err != nil {
 					return 0, err
 				}
@@ -96,8 +96,8 @@ func solveInputWithInstructions(input []byte, instructionRegexpList []Instructio
 	return solution, nil
 }
 
-func executeMulInstruction(instruction []byte) (int, error) {
-	mulInstruction := string(instruction)
+func executeMulInstruction(instruction Instruction) (int, error) {
+	mulInstruction := string(instruction.Value)
 	mulInstruction = strings.ReplaceAll(mulInstruction, "mul(", "")
 	mulInstruction = strings.ReplaceAll(mulInstruction, ")", "")
 	numbers := strings.Split(mulInstruction, ",")
