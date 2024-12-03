@@ -11,10 +11,10 @@ func Test_createSeriesOfInstructionsFromInput(t *testing.T) {
 	t.Run("Extracts mul commands from corrupted memory", func(t *testing.T) {
 		// Given
 		corruptedMemory := "xmul(1,1)xdo()xdon't()xmul(2,2)xdo()xdon't()x"
-		instructionRegexpList := []InstructionRegexp{{Id: MulID, Re: regexp.MustCompile(MulRegexp)}}
+		instructionConfigs := []InstructionConfig{{Id: MulID, Re: regexp.MustCompile(MulRegexp)}}
 
 		// When
-		result := createSeriesOfInstructionsFromInput([]byte(corruptedMemory), instructionRegexpList)
+		result := createSeriesOfInstructionsFromInput([]byte(corruptedMemory), instructionConfigs)
 
 		// Then
 		expected := []Instruction{
@@ -27,10 +27,10 @@ func Test_createSeriesOfInstructionsFromInput(t *testing.T) {
 	t.Run("Extracts do commands from corrupted memory", func(t *testing.T) {
 		// Given
 		corruptedMemory := "xmul(1,1)xdo()xdon't()xmul(2,2)xdo()xdon't()x"
-		instructionRegexpList := []InstructionRegexp{{Id: DoID, Re: regexp.MustCompile(DoRegexp)}}
+		instructionConfigs := []InstructionConfig{{Id: DoID, Re: regexp.MustCompile(DoRegexp)}}
 
 		// When
-		result := createSeriesOfInstructionsFromInput([]byte(corruptedMemory), instructionRegexpList)
+		result := createSeriesOfInstructionsFromInput([]byte(corruptedMemory), instructionConfigs)
 
 		// Then
 		expected := []Instruction{
@@ -43,10 +43,10 @@ func Test_createSeriesOfInstructionsFromInput(t *testing.T) {
 	t.Run("Extracts don't commands from corrupted memory", func(t *testing.T) {
 		// Given
 		corruptedMemory := "xmul(1,1)xdo()xdon't()xmul(2,2)xdo()xdon't()x"
-		instructionRegexpList := []InstructionRegexp{{Id: DontID, Re: regexp.MustCompile(DontRegexp)}}
+		instructionConfigs := []InstructionConfig{{Id: DontID, Re: regexp.MustCompile(DontRegexp)}}
 
 		// When
-		result := createSeriesOfInstructionsFromInput([]byte(corruptedMemory), instructionRegexpList)
+		result := createSeriesOfInstructionsFromInput([]byte(corruptedMemory), instructionConfigs)
 
 		// Then
 		expected := []Instruction{
@@ -59,10 +59,10 @@ func Test_createSeriesOfInstructionsFromInput(t *testing.T) {
 	t.Run("Extracts mul commands from corrupted memory", func(t *testing.T) {
 		// Given
 		corruptedMemory := "xmul(2,4)%&mul[3,7]!@^do_not_mul(5,5)+mul(32,64]then(mul(11,8)mul(8,5))"
-		instructionRegexpList := []InstructionRegexp{{Id: MulID, Re: regexp.MustCompile(MulRegexp)}}
+		instructionConfigs := []InstructionConfig{{Id: MulID, Re: regexp.MustCompile(MulRegexp)}}
 
 		// When
-		result := createSeriesOfInstructionsFromInput([]byte(corruptedMemory), instructionRegexpList)
+		result := createSeriesOfInstructionsFromInput([]byte(corruptedMemory), instructionConfigs)
 
 		// Then
 		expected := []Instruction{
@@ -75,14 +75,14 @@ func Test_createSeriesOfInstructionsFromInput(t *testing.T) {
 	})
 }
 
-func Test_solveInputWithInstructions(t *testing.T) {
+func Test_solveInput(t *testing.T) {
 	t.Run("Correctly extracts and executes instructions from corrupted input that only contain mul", func(t *testing.T) {
 		// Given
 		corruptedMemory := "xmul(2,4)%&mul[3,7]!@^do_not_mul(5,5)+mul(32,64]then(mul(11,8)mul(8,5))"
-		instructionRegexpList := []InstructionRegexp{{Id: MulID, Re: regexp.MustCompile(MulRegexp)}}
+		instructionConfigs := []InstructionConfig{{Id: MulID, Re: regexp.MustCompile(MulRegexp)}}
 
 		// When
-		result, err := solveInputWithInstructions([]byte(corruptedMemory), instructionRegexpList)
+		result, err := solveInput([]byte(corruptedMemory), instructionConfigs)
 
 		// Then
 		assert.NoError(t, err)
@@ -92,14 +92,14 @@ func Test_solveInputWithInstructions(t *testing.T) {
 	t.Run("Correctly extracts and executes instructions from corrupted input that only contain do, don't and mul", func(t *testing.T) {
 		// Given
 		corruptedMemory := "xmul(2,4)&mul[3,7]!^don't()_mul(5,5)+mul(32,64](mul(11,8)undo()?mul(8,5))"
-		instructionRegexpList := []InstructionRegexp{
+		instructionConfigs := []InstructionConfig{
 			{Id: MulID, Re: regexp.MustCompile(MulRegexp)},
 			{Id: DoID, Re: regexp.MustCompile(DoRegexp)},
 			{Id: DontID, Re: regexp.MustCompile(DontRegexp)},
 		}
 
 		// When
-		result, err := solveInputWithInstructions([]byte(corruptedMemory), instructionRegexpList)
+		result, err := solveInput([]byte(corruptedMemory), instructionConfigs)
 
 		// Then
 		assert.NoError(t, err)

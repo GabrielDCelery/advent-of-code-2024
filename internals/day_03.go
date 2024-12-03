@@ -29,20 +29,20 @@ type Instruction struct {
 	Value    []byte
 }
 
-type InstructionRegexp struct {
+type InstructionConfig struct {
 	Id InstructionID
 	Re *regexp.Regexp
 }
 
-func createSeriesOfInstructionsFromInput(input []byte, instructionRegexpList []InstructionRegexp) []Instruction {
+func createSeriesOfInstructionsFromInput(input []byte, instructionConfigs []InstructionConfig) []Instruction {
 	instructions := []Instruction{}
 
-	for _, instructionRegexp := range instructionRegexpList {
-		matches := instructionRegexp.Re.FindAllIndex(input, -1)
+	for _, instructionConfig := range instructionConfigs {
+		matches := instructionConfig.Re.FindAllIndex(input, -1)
 
 		for _, match := range matches {
 			instruction := Instruction{
-				Id:       instructionRegexp.Id,
+				Id:       instructionConfig.Id,
 				Position: match[0],
 				Value:    input[match[0]:match[1]],
 			}
@@ -84,8 +84,8 @@ func executeInstructions(instructions []Instruction) (int, error) {
 	return total, nil
 }
 
-func solveInputWithInstructions(input []byte, instructionRegexpList []InstructionRegexp) (int, error) {
-	instructions := createSeriesOfInstructionsFromInput(input, instructionRegexpList)
+func solveInput(input []byte, instructionConfigs []InstructionConfig) (int, error) {
+	instructions := createSeriesOfInstructionsFromInput(input, instructionConfigs)
 
 	solution, err := executeInstructions(instructions)
 
@@ -121,11 +121,11 @@ func SoveDay3Part1() (int, error) {
 		return 0, err
 	}
 
-	instructionRegexpList := []InstructionRegexp{
+	instructionConfigs := []InstructionConfig{
 		{Id: MulID, Re: regexp.MustCompile(MulRegexp)},
 	}
 
-	solution, err := solveInputWithInstructions(input, instructionRegexpList)
+	solution, err := solveInput(input, instructionConfigs)
 
 	if err != nil {
 		return 0, err
@@ -143,13 +143,13 @@ func SolveDay3Part2() (int, error) {
 		return 0, err
 	}
 
-	instructionRegexpList := []InstructionRegexp{
+	instructionConfigs := []InstructionConfig{
 		{Id: MulID, Re: regexp.MustCompile(MulRegexp)},
 		{Id: DoID, Re: regexp.MustCompile(DoRegexp)},
 		{Id: DontID, Re: regexp.MustCompile(DontRegexp)},
 	}
 
-	solution, err := solveInputWithInstructions(input, instructionRegexpList)
+	solution, err := solveInput(input, instructionConfigs)
 
 	if err != nil {
 		return 0, err
