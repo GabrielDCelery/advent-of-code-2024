@@ -1,4 +1,4 @@
-package internals
+package day_02
 
 import (
 	"testing"

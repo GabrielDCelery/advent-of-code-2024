@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/GabrielDCelery/advent-of-code-2024/internals"
+	"github.com/GabrielDCelery/advent-of-code-2024/internals/day_05"
 )
 
 func main() {
-	part1Solution, err := internals.SolveDay5Part1()
+	part1Solution, err := day_05.SolveDay5Part1()
 
 	if err != nil {
 		log.Fatalln(err)
@@ -16,7 +16,7 @@ func main() {
 
 	fmt.Printf("Day 5, part 1 solution: %d\n", part1Solution)
 
-	part2Solution, err := internals.SolveDay5Part2()
+	part2Solution, err := day_05.SolveDay5Part2()
 
 	if err != nil {
 		log.Fatalln(err)
