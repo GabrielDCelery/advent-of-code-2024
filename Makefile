@@ -21,3 +21,7 @@ solve-day-3:
 .PHONY: solve-day-4
 solve-day-4:
 	@AOC_INPUT_PATH=$$(readlink -f ./inputs/input-day-4.txt) AOC_PART1_TEMPLATES_PATH=$$(readlink -f ./assets/day_04/xmas_part_01_templates.txt) AOC_PART2_TEMPLATES_PATH=$$(readlink -f ./assets/day_04/xmas_part_02_templates.txt) go run ./cmd/day_04/main.go
+
+.PHONY: solve-day-5
+solve-day-5:
+	@AOC_INPUT_PATH=$$(readlink -f ./inputs/input-day-5.txt) go run ./cmd/day_05/main.go
