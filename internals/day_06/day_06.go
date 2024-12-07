@@ -91,9 +91,6 @@ func (g *Guardian) GetLocationInFront() Vector {
 	}
 }
 
-// func (g *Guardian) determineNextAction(gameMap [][]int) Action {
-// }
-
 type GameMemory struct {
 	uniqueCellsVisitedByGuardians map[string]bool
 }
@@ -161,14 +158,6 @@ func transformInputToGameState(input string) (*GameMap, *Guardian, error) {
 	gameMap := NewGameMap(gameMapMatrix)
 
 	return gameMap, guardian, nil
-}
-
-func isGuardianOnMap(gameMap *GameMap, guardian *Guardian) bool {
-	guardianLocation := guardian.GetCurrentLocation()
-	return guardianLocation.x >= 0 &&
-		guardianLocation.y >= 0 &&
-		guardianLocation.x < gameMap.Width() &&
-		guardianLocation.y < gameMap.Height()
 }
 
 func moveGuardiansUntilTheyLeaveMap(gameMap *GameMap, guardian *Guardian, gameMemory *GameMemory) error {
