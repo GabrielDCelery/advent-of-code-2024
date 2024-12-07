@@ -119,7 +119,7 @@ func countTheNumberOfDistinctPositionsBeforeGuardianLeaves(input string) (int, e
 
 	gameMemory := NewGameMemory()
 
-	err = moveGuardiansUntilTheyLeaveMap(gameMap, guardian, gameMemory)
+	err = moveGuardianUntilItLeavesMap(gameMap, guardian, gameMemory)
 
 	if err != nil {
 		return 0, err
@@ -160,7 +160,7 @@ func transformInputToGameState(input string) (*GameMap, *Guardian, error) {
 	return gameMap, guardian, nil
 }
 
-func moveGuardiansUntilTheyLeaveMap(gameMap *GameMap, guardian *Guardian, gameMemory *GameMemory) error {
+func moveGuardianUntilItLeavesMap(gameMap *GameMap, guardian *Guardian, gameMemory *GameMemory) error {
 loop:
 	for true {
 		gameMemory.AppendVectorToVisitedLocations(guardian.GetCurrentLocation())
