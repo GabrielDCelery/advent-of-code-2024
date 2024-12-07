@@ -29,6 +29,22 @@ func NewGameMap(matrix [][]Cell) *GameMap {
 	}
 }
 
+func (g *GameMap) Clone() *GameMap {
+	clonedMatrix := [][]Cell{}
+	for y := range len(g.matrix) {
+		clonedMatrixLine := []Cell{}
+		for x := range len(g.matrix[0]) {
+			clonedMatrixLine = append(clonedMatrixLine, Cell(g.matrix[y][x]))
+		}
+		clonedMatrix = append(clonedMatrix, clonedMatrixLine)
+	}
+	return NewGameMap(clonedMatrix)
+}
+
+func (g *GameMap) SetCellToType(y int, x int, cellType Cell) {
+	g.matrix[y][x] = cellType
+}
+
 func (g *GameMap) Width() int {
 	return len(g.matrix[0])
 }
@@ -62,6 +78,10 @@ func NewGuardian(location Vector, facing Vector) *Guardian {
 		location,
 		facing,
 	}
+}
+
+func (g *Guardian) Clone() *Guardian {
+	return NewGuardian(Vector{y: g.location.y, x: g.location.x}, Vector{y: g.facing.y, x: g.facing.x})
 }
 
 func (g *Guardian) ExecuteAction(action Action) {
@@ -156,6 +176,41 @@ func countTheNumberOfDistinctPositionsBeforeGuardianLeaves(input string) (int, e
 	return solution, nil
 }
 
+func countNumberOfWaysGuardianCanBeLockedIntoInfiniteLoop(input string) (int, error) {
+	gameMap, guardian, err := transformInputToGameState(input)
+
+	if err != nil {
+		return 0, err
+	}
+
+	numOfGuardiansStuckInALoop := 0
+
+	for y := range gameMap.Height() {
+		for x := range gameMap.Width() {
+			clonedGuardian := guardian.Clone()
+			location := clonedGuardian.GetCurrentLocation()
+			if location.y == y && location.x == x {
+				continue
+			}
+			clonedGameMap := gameMap.Clone()
+			clonedGameMap.SetCellToType(y, x, WALL)
+			gameMemory := NewGameMemory()
+
+			err = moveGuardianUntilItLeavesMap(clonedGameMap, clonedGuardian, gameMemory)
+
+			if err != nil {
+				return 0, err
+			}
+
+			if gameMemory.IsStuckInInfiniteLoop() {
+				numOfGuardiansStuckInALoop += 1
+			}
+		}
+	}
+
+	return numOfGuardiansStuckInALoop, nil
+}
+
 func transformInputToGameState(input string) (*GameMap, *Guardian, error) {
 	gameMapMatrix := [][]Cell{}
 
@@ -217,6 +272,24 @@ func SolveDay6Part1() (int, error) {
 	}
 
 	solution, err := countTheNumberOfDistinctPositionsBeforeGuardianLeaves(strings.TrimSpace(string(file)))
+
+	if err != nil {
+		return 0, err
+	}
+
+	return solution, nil
+}
+
+func SolveDay6Part2() (int, error) {
+	inputPath := os.Getenv("AOC_INPUT_PATH")
+
+	file, err := os.ReadFile(inputPath)
+
+	if err != nil {
+		return 0, err
+	}
+
+	solution, err := countNumberOfWaysGuardianCanBeLockedIntoInfiniteLoop(strings.TrimSpace(string(file)))
 
 	if err != nil {
 		return 0, err

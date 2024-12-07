@@ -134,3 +134,26 @@ func Test_countTheNumberOfDistinctPositionsBeforeGuardianLeaves(t *testing.T) {
 		assert.Equal(t, 41, result)
 	})
 }
+
+func Test_countNumberOfWaysGuardianCanBeLockedIntoInfiniteLoop(t *testing.T) {
+	t.Run("Correctly calculates the number of ways the guardian can be locked in an infinite loop", func(t *testing.T) {
+		// Given
+		gameMap := `....#.....
+.........#
+..........
+..#.......
+.......#..
+..........
+.#..^.....
+........#.
+#.........
+......#...`
+
+		// When
+		result, err := countNumberOfWaysGuardianCanBeLockedIntoInfiniteLoop(gameMap)
+
+		// Then
+		assert.NoError(t, err)
+		assert.Equal(t, 6, result)
+	})
+}
