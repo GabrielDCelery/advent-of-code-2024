@@ -18,6 +18,7 @@ type Cell = int
 const (
 	EMPTY Cell = iota
 	WALL
+	NULL
 )
 
 type GameMap struct {
@@ -39,11 +40,11 @@ func (g *GameMap) Height() int {
 }
 
 func (g *GameMap) Cell(vector Vector) Cell {
+	isInside := vector.x >= 0 && vector.y >= 0 && vector.x < g.Width() && vector.y < g.Height()
+	if !isInside {
+		return NULL
+	}
 	return g.matrix[vector.y][vector.x]
-}
-
-func (g *GameMap) IsVectorInside(vector Vector) bool {
-	return vector.x >= 0 && vector.y >= 0 && vector.x < g.Width() && vector.y < g.Height()
 }
 
 type Action = int
@@ -185,16 +186,14 @@ func moveGuardiansUntilTheyLeaveMap(gameMap *GameMap, guardians []*Guardian, gam
 		}
 		for _, guardian := range guardians {
 			gameMemory.AppendVectorToVisitedLocations(guardian.GetCurrentLocation())
-			if !gameMap.IsVectorInside(guardian.GetLocationInFront()) {
-				guardian.ExecuteAction(MOVE_FORWARD)
-				continue
-			}
 			cellInFront := gameMap.Cell(guardian.GetLocationInFront())
 			switch cellInFront {
 			case EMPTY:
 				guardian.ExecuteAction(MOVE_FORWARD)
 			case WALL:
 				guardian.ExecuteAction(TURN_RIGHT)
+			case NULL:
+				guardian.ExecuteAction(MOVE_FORWARD)
 			}
 		}
 
