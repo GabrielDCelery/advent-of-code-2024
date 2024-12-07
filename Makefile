@@ -25,3 +25,7 @@ solve-day-4:
 .PHONY: solve-day-5
 solve-day-5:
 	@AOC_INPUT_PATH=$$(readlink -f ./inputs/input-day-5.txt) go run ./cmd/day_05/main.go
+
+.PHONY: solve-day-6
+solve-day-6:
+	@AOC_INPUT_PATH=$$(readlink -f ./inputs/input-day-6.txt) go run ./cmd/day_06/main.go
