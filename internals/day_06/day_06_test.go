@@ -9,7 +9,7 @@ import (
 func Test_Guardian_executeAction(t *testing.T) {
 	t.Run("Guardian executing TURN_RIGHT successfully turns right when facing upwards", func(t *testing.T) {
 		// Given
-		guardian := NewGuardian(0, Vector{y: 0, x: 0}, Vector{y: -1, x: 0})
+		guardian := NewGuardian(Vector{y: 0, x: 0}, Vector{y: -1, x: 0})
 
 		// When
 		guardian.ExecuteAction(TURN_RIGHT)
@@ -21,7 +21,7 @@ func Test_Guardian_executeAction(t *testing.T) {
 
 	t.Run("Guardian executing TURN_RIGHT successfully turns downwards when facing right", func(t *testing.T) {
 		// Given
-		guardian := NewGuardian(0, Vector{y: 0, x: 0}, Vector{y: 0, x: 1})
+		guardian := NewGuardian(Vector{y: 0, x: 0}, Vector{y: 0, x: 1})
 
 		// When
 		guardian.ExecuteAction(TURN_RIGHT)
@@ -33,7 +33,7 @@ func Test_Guardian_executeAction(t *testing.T) {
 
 	t.Run("Guardian executing TURN_RIGHT successfully turns left when facing downwards", func(t *testing.T) {
 		// Given
-		guardian := NewGuardian(0, Vector{y: 0, x: 0}, Vector{y: 1, x: 0})
+		guardian := NewGuardian(Vector{y: 0, x: 0}, Vector{y: 1, x: 0})
 
 		// When
 		guardian.ExecuteAction(TURN_RIGHT)
@@ -45,7 +45,7 @@ func Test_Guardian_executeAction(t *testing.T) {
 
 	t.Run("Guardian executing TURN_RIGHT successfully turns upwards when facing left", func(t *testing.T) {
 		// Given
-		guardian := NewGuardian(0, Vector{y: 0, x: 0}, Vector{y: 0, x: -1})
+		guardian := NewGuardian(Vector{y: 0, x: 0}, Vector{y: 0, x: -1})
 
 		// When
 		guardian.ExecuteAction(TURN_RIGHT)
@@ -57,7 +57,7 @@ func Test_Guardian_executeAction(t *testing.T) {
 
 	t.Run("Guardian executing MOVE_FORWARD successfully moves forwards when facing downwards", func(t *testing.T) {
 		// Given
-		guardian := NewGuardian(0, Vector{y: 0, x: 0}, Vector{y: 1, x: 0})
+		guardian := NewGuardian(Vector{y: 0, x: 0}, Vector{y: 1, x: 0})
 
 		// When
 		guardian.ExecuteAction(MOVE_FORWARD)
@@ -83,7 +83,7 @@ func Test_transformInputToGameState(t *testing.T) {
 ......#...`
 
 		// When
-		gameMap, guardians, err := transformInputToGameState(input)
+		gameMap, guardian, err := transformInputToGameState(input)
 
 		// Then
 		expectedGameMap := GameMap{
@@ -102,14 +102,13 @@ func Test_transformInputToGameState(t *testing.T) {
 		}
 
 		expectedGuardian := Guardian{
-			id:       0,
 			location: Vector{y: 6, x: 4},
 			facing:   Vector{y: -1, x: 0},
 		}
 
 		assert.NoError(t, err)
 		assert.Equal(t, expectedGameMap, *gameMap)
-		assert.Equal(t, expectedGuardian, *guardians[0])
+		assert.Equal(t, expectedGuardian, *guardian)
 	})
 }
 

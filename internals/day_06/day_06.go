@@ -2,10 +2,8 @@ package day_06
 
 import (
 	"fmt"
-	"log"
 	"os"
 	"strings"
-	"time"
 )
 
 type Vector struct {
@@ -55,14 +53,12 @@ const (
 )
 
 type Guardian struct {
-	id       int
 	location Vector
 	facing   Vector
 }
 
-func NewGuardian(id int, location Vector, facing Vector) *Guardian {
+func NewGuardian(location Vector, facing Vector) *Guardian {
 	return &Guardian{
-		id,
 		location,
 		facing,
 	}
@@ -118,7 +114,7 @@ func (gm *GameMemory) CountNumOfUniqueCellsVisitedByGuardians() int {
 }
 
 func countTheNumberOfDistinctPositionsBeforeGuardianLeaves(input string) (int, error) {
-	gameMap, guardians, err := transformInputToGameState(input)
+	gameMap, guardian, err := transformInputToGameState(input)
 
 	if err != nil {
 		return 0, err
@@ -126,7 +122,7 @@ func countTheNumberOfDistinctPositionsBeforeGuardianLeaves(input string) (int, e
 
 	gameMemory := NewGameMemory()
 
-	err = moveGuardiansUntilTheyLeaveMap(gameMap, guardians, gameMemory)
+	err = moveGuardiansUntilTheyLeaveMap(gameMap, guardian, gameMemory)
 
 	if err != nil {
 		return 0, err
@@ -137,12 +133,12 @@ func countTheNumberOfDistinctPositionsBeforeGuardianLeaves(input string) (int, e
 	return solution, nil
 }
 
-func transformInputToGameState(input string) (*GameMap, []*Guardian, error) {
-	guardianID := 0
+func transformInputToGameState(input string) (*GameMap, *Guardian, error) {
 	gameMapMatrix := [][]Cell{}
-	guardians := []*Guardian{}
 
 	lines := strings.Split(input, "\n")
+
+	guardian := &Guardian{}
 
 	for y, line := range lines {
 		gameMapMatrixRow := []Cell{}
@@ -154,11 +150,9 @@ func transformInputToGameState(input string) (*GameMap, []*Guardian, error) {
 				gameMapMatrixRow = append(gameMapMatrixRow, WALL)
 			case "^":
 				gameMapMatrixRow = append(gameMapMatrixRow, EMPTY)
-				guardian := NewGuardian(guardianID, Vector{y: y, x: x}, Vector{y: -1, x: 0})
-				guardians = append(guardians, guardian)
-				guardianID += 1
+				guardian = NewGuardian(Vector{y: y, x: x}, Vector{y: -1, x: 0})
 			default:
-				log.Fatalln("TODO ERROR")
+				return &GameMap{}, &Guardian{}, fmt.Errorf("Unhandled cell type %s", string(cell))
 			}
 		}
 		gameMapMatrix = append(gameMapMatrix, gameMapMatrixRow)
@@ -166,7 +160,7 @@ func transformInputToGameState(input string) (*GameMap, []*Guardian, error) {
 
 	gameMap := NewGameMap(gameMapMatrix)
 
-	return gameMap, guardians, nil
+	return gameMap, guardian, nil
 }
 
 func isGuardianOnMap(gameMap *GameMap, guardian *Guardian) bool {
@@ -177,33 +171,19 @@ func isGuardianOnMap(gameMap *GameMap, guardian *Guardian) bool {
 		guardianLocation.y < gameMap.Height()
 }
 
-func moveGuardiansUntilTheyLeaveMap(gameMap *GameMap, guardians []*Guardian, gameMemory *GameMemory) error {
-	start := time.Now()
-	for len(guardians) > 0 {
-		elapsed := time.Since(start).Milliseconds()
-		if elapsed > 2 {
-			return fmt.Errorf("timed out")
+func moveGuardiansUntilTheyLeaveMap(gameMap *GameMap, guardian *Guardian, gameMemory *GameMemory) error {
+loop:
+	for true {
+		gameMemory.AppendVectorToVisitedLocations(guardian.GetCurrentLocation())
+		cellInFront := gameMap.Cell(guardian.GetLocationInFront())
+		switch cellInFront {
+		case EMPTY:
+			guardian.ExecuteAction(MOVE_FORWARD)
+		case WALL:
+			guardian.ExecuteAction(TURN_RIGHT)
+		case NULL:
+			break loop
 		}
-		for _, guardian := range guardians {
-			gameMemory.AppendVectorToVisitedLocations(guardian.GetCurrentLocation())
-			cellInFront := gameMap.Cell(guardian.GetLocationInFront())
-			switch cellInFront {
-			case EMPTY:
-				guardian.ExecuteAction(MOVE_FORWARD)
-			case WALL:
-				guardian.ExecuteAction(TURN_RIGHT)
-			case NULL:
-				guardian.ExecuteAction(MOVE_FORWARD)
-			}
-		}
-
-		temp := []*Guardian{}
-		for _, guardian := range guardians {
-			if isGuardianOnMap(gameMap, guardian) {
-				temp = append(temp, guardian)
-			}
-		}
-		guardians = temp
 	}
 	return nil
 }
