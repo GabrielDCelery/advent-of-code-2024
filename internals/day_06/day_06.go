@@ -84,6 +84,13 @@ func (g *Guardian) GetCurrentLocation() Vector {
 	}
 }
 
+func (g *Guardian) GetFacing() Vector {
+	return Vector{
+		y: g.facing.y,
+		x: g.facing.x,
+	}
+}
+
 func (g *Guardian) GetLocationInFront() Vector {
 	return Vector{
 		y: g.location.y + g.facing.y,
@@ -92,22 +99,41 @@ func (g *Guardian) GetLocationInFront() Vector {
 }
 
 type GameMemory struct {
-	uniqueCellsVisitedByGuardians map[string]bool
+	isStuckInInfiniteLoop        bool
+	uniqueLocationsWithFacingMap map[string]bool
 }
 
 func NewGameMemory() *GameMemory {
 	return &GameMemory{
-		uniqueCellsVisitedByGuardians: map[string]bool{},
+		isStuckInInfiniteLoop:        false,
+		uniqueLocationsWithFacingMap: map[string]bool{},
 	}
 }
 
-func (gm *GameMemory) AppendVectorToVisitedLocations(vector Vector) {
-	key := fmt.Sprintf("%d__%d", vector.y, vector.x)
-	gm.uniqueCellsVisitedByGuardians[key] = true
+func (gm *GameMemory) AppendGuardianSnapshot(guardian *Guardian) {
+	location := guardian.GetCurrentLocation()
+	facing := guardian.GetFacing()
+	currLocationWithFacingKey := fmt.Sprintf("%d_%d_%d_%d", location.y, location.x, facing.y, facing.x)
+	_, ok := gm.uniqueLocationsWithFacingMap[currLocationWithFacingKey]
+	if ok {
+		gm.isStuckInInfiniteLoop = true
+	}
+	gm.uniqueLocationsWithFacingMap[currLocationWithFacingKey] = true
 }
 
-func (gm *GameMemory) CountNumOfUniqueCellsVisitedByGuardians() int {
-	return len(gm.uniqueCellsVisitedByGuardians)
+func (gm *GameMemory) CountNumOfUniqueCellsVisitedByGuardian() int {
+	uniqueLocationKeyMap := map[string]bool{}
+	for key := range gm.uniqueLocationsWithFacingMap {
+		keyComponents := strings.Split(key, "_")
+		y, x := keyComponents[0], keyComponents[1]
+		uniqueLocationKey := fmt.Sprintf("%s_%s", y, x)
+		uniqueLocationKeyMap[uniqueLocationKey] = true
+	}
+	return len(uniqueLocationKeyMap)
+}
+
+func (gm *GameMemory) IsStuckInInfiniteLoop() bool {
+	return gm.isStuckInInfiniteLoop
 }
 
 func countTheNumberOfDistinctPositionsBeforeGuardianLeaves(input string) (int, error) {
@@ -125,7 +151,7 @@ func countTheNumberOfDistinctPositionsBeforeGuardianLeaves(input string) (int, e
 		return 0, err
 	}
 
-	solution := gameMemory.CountNumOfUniqueCellsVisitedByGuardians()
+	solution := gameMemory.CountNumOfUniqueCellsVisitedByGuardian()
 
 	return solution, nil
 }
@@ -163,7 +189,11 @@ func transformInputToGameState(input string) (*GameMap, *Guardian, error) {
 func moveGuardianUntilItLeavesMap(gameMap *GameMap, guardian *Guardian, gameMemory *GameMemory) error {
 loop:
 	for true {
-		gameMemory.AppendVectorToVisitedLocations(guardian.GetCurrentLocation())
+		gameMemory.AppendGuardianSnapshot(guardian)
+		//  exit early if guardian is stuck in an infinite loop
+		if gameMemory.IsStuckInInfiniteLoop() {
+			return nil
+		}
 		cellInFront := gameMap.Cell(guardian.GetLocationInFront())
 		switch cellInFront {
 		case EMPTY:
