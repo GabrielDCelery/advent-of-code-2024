@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"slices"
 	"strconv"
 	"strings"
 )
@@ -45,8 +44,14 @@ func buildDFSForCalibration(components []int, operation Operation, validOperatio
 	return rootNode
 }
 
-func computePossibleTotalsForDFS(node *Node, parentNodeTotal int, totals *[]int) {
+func doesDFSHasAPathThatAddsUpToTotals(node *Node, target int, parentNodeTotal int, hasFoundTarget *bool) {
+	// if we found the target number there is no need to continue traversing the tree
+	if *hasFoundTarget == true {
+		return
+	}
+
 	currentNodeTotal := parentNodeTotal
+
 	switch node.operation {
 	case Null:
 		currentNodeTotal = node.value
@@ -61,11 +66,18 @@ func computePossibleTotalsForDFS(node *Node, parentNodeTotal int, totals *[]int)
 		}
 		currentNodeTotal = total
 	}
-	if len(node.children) == 0 {
-		*totals = append(*totals, currentNodeTotal)
+
+	// if there are move child nodes continue traversing
+	if len(node.children) > 0 {
+		for _, child := range node.children {
+			doesDFSHasAPathThatAddsUpToTotals(child, target, currentNodeTotal, hasFoundTarget)
+		}
+		return
 	}
-	for _, child := range node.children {
-		computePossibleTotalsForDFS(child, currentNodeTotal, totals)
+
+	// once we reaached the leaf node check if the totals add up the the total number we are seeking
+	if currentNodeTotal == target {
+		*hasFoundTarget = true
 	}
 }
 
@@ -95,10 +107,9 @@ func transformInputLineToCalibration(line string) (Calibration, error) {
 
 func doesCalibrationProducesTestResult(calibration Calibration, validOperations []Operation) bool {
 	rootNode := buildDFSForCalibration(calibration.components, Null, validOperations)
-	possibleTotals := []int{}
-	computePossibleTotalsForDFS(rootNode, 0, &possibleTotals)
-	result := slices.Contains(possibleTotals, calibration.target)
-	return result
+	hasFoundTarget := false
+	doesDFSHasAPathThatAddsUpToTotals(rootNode, calibration.target, 0, &hasFoundTarget)
+	return hasFoundTarget
 }
 
 func sumCalibrationsThatPassTest(input string, validOperations []Operation) (int, error) {
