@@ -90,14 +90,17 @@ func (a *AntennaLayout) createUniqueAntennaPairs() [][2]Vector {
 	return antennaPairs
 }
 
-func getAntinodeVectorsFromAntennaPair(antennaPair [2]Vector) [2]Vector {
-	vec1 := antennaPair[0]
-	vec2 := antennaPair[1]
-
-	antinode1 := addVectors(vec1, subtractVectors(vec1, vec2))
-	antinode2 := addVectors(vec2, subtractVectors(vec2, vec1))
-
-	return [2]Vector{antinode1, antinode2}
+func getValidAntinodesForAntennaPair(antennaPair [2]Vector, layout AntennaLayout) []Vector {
+	antinodes := []Vector{}
+	antinode1 := addVectors(antennaPair[0], subtractVectors(antennaPair[0], antennaPair[1]))
+	if layout.isVectorWithinArea(antinode1) {
+		antinodes = append(antinodes, antinode1)
+	}
+	antinode2 := addVectors(antennaPair[1], subtractVectors(antennaPair[1], antennaPair[0]))
+	if layout.isVectorWithinArea(antinode2) {
+		antinodes = append(antinodes, antinode2)
+	}
+	return antinodes
 }
 
 func calculateNumOfUniqueAntinodes(input string) (int, error) {
@@ -107,14 +110,8 @@ func calculateNumOfUniqueAntinodes(input string) (int, error) {
 	uniqueAntinodesMap := map[string]bool{}
 
 	for _, antennaPair := range antennaPairs {
-		antinodes := []Vector{
-			addVectors(antennaPair[0], subtractVectors(antennaPair[0], antennaPair[1])),
-			addVectors(antennaPair[1], subtractVectors(antennaPair[1], antennaPair[0])),
-		}
+		antinodes := getValidAntinodesForAntennaPair(antennaPair, *antennaLayout)
 		for _, antinode := range antinodes {
-			if !antennaLayout.isVectorWithinArea(antinode) {
-				continue
-			}
 			key := fmt.Sprintf("%d_%d", antinode.y, antinode.x)
 			uniqueAntinodesMap[key] = true
 		}
