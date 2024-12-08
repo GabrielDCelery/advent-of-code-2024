@@ -1,6 +1,8 @@
 package day_07
 
 import (
+	"fmt"
+	"log"
 	"os"
 	"slices"
 	"strconv"
@@ -13,6 +15,7 @@ const (
 	Null Operation = iota
 	Multiply
 	Add
+	Concatenate
 )
 
 type Calibration struct {
@@ -27,7 +30,7 @@ type Node struct {
 	children  []*Node
 }
 
-func buildDFSForCalibration(components []int, operation Operation) *Node {
+func buildDFSForCalibration(components []int, operation Operation, validOperations []Operation) *Node {
 	rootNode := &Node{
 		value:     components[0],
 		total:     0,
@@ -36,8 +39,8 @@ func buildDFSForCalibration(components []int, operation Operation) *Node {
 	}
 
 	if len(components) > 1 {
-		for _, operation := range []Operation{Multiply, Add} {
-			rootNode.children = append(rootNode.children, buildDFSForCalibration(components[1:], operation))
+		for _, operation := range validOperations {
+			rootNode.children = append(rootNode.children, buildDFSForCalibration(components[1:], operation, validOperations))
 		}
 	}
 
@@ -52,6 +55,12 @@ func computePossibleTotalsForDFS(node *Node, parentNodeTotal int, totals *[]int)
 		node.total = parentNodeTotal * node.value
 	case Add:
 		node.total = parentNodeTotal + node.value
+	case Concatenate:
+		total, err := strconv.Atoi(fmt.Sprintf("%d%d", parentNodeTotal, node.value))
+		if err != nil {
+			log.Fatalln(err)
+		}
+		node.total = total
 	}
 	if len(node.children) == 0 {
 		*totals = append(*totals, node.total)
@@ -85,15 +94,15 @@ func transformInputLineToCalibration(line string) (Calibration, error) {
 	return calibration, nil
 }
 
-func doesCalibrationProducesTestResult(calibration Calibration) bool {
-	rootNode := buildDFSForCalibration(calibration.components, Null)
+func doesCalibrationProducesTestResult(calibration Calibration, validOperations []Operation) bool {
+	rootNode := buildDFSForCalibration(calibration.components, Null, validOperations)
 	possibleTotals := []int{}
 	computePossibleTotalsForDFS(rootNode, 0, &possibleTotals)
 	result := slices.Contains(possibleTotals, calibration.target)
 	return result
 }
 
-func sumCalibrationsThatPassTest(input string) (int, error) {
+func sumCalibrationsThatPassTest(input string, validOperations []Operation) (int, error) {
 	lines := strings.Split(strings.TrimSpace(input), "\n")
 	total := 0
 	for _, line := range lines {
@@ -101,7 +110,7 @@ func sumCalibrationsThatPassTest(input string) (int, error) {
 		if err != nil {
 			return 0, err
 		}
-		if doesCalibrationProducesTestResult(calibration) {
+		if doesCalibrationProducesTestResult(calibration, validOperations) {
 			total += calibration.target
 		}
 	}
@@ -117,7 +126,29 @@ func SolveDay7Part1() (int, error) {
 		return 0, err
 	}
 
-	solution, err := sumCalibrationsThatPassTest(string(file))
+	validOperations := []Operation{Multiply, Add}
+
+	solution, err := sumCalibrationsThatPassTest(string(file), validOperations)
+
+	if err != nil {
+		return 0, err
+	}
+
+	return solution, nil
+}
+
+func SolveDay7Part2() (int, error) {
+	inputPath := os.Getenv("AOC_INPUT_PATH")
+
+	file, err := os.ReadFile(inputPath)
+
+	if err != nil {
+		return 0, err
+	}
+
+	validOperations := []Operation{Multiply, Add, Concatenate}
+
+	solution, err := sumCalibrationsThatPassTest(string(file), validOperations)
 
 	if err != nil {
 		return 0, err
