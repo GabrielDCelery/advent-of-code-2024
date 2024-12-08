@@ -16,11 +16,11 @@ func main() {
 
 	fmt.Printf("Day 8, part 1 solution: %d\n", part1Solution)
 
-	// part2Solution, err := day_07.SolveDay7Part2()
-	//
-	// if err != nil {
-	// 	log.Fatalln(err)
-	// }
-	//
-	// fmt.Printf("Day 7, part 2 solution: %d\n", part2Solution)
+	part2Solution, err := day_08.SolveDay8Part2()
+
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	fmt.Printf("Day 8, part 2 solution: %d\n", part2Solution)
 }

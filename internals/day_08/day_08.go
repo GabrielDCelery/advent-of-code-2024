@@ -25,6 +25,13 @@ func subtractVectors(v1 Vector, v2 Vector) Vector {
 	}
 }
 
+func multiplyVector(v Vector, m int) Vector {
+	return Vector{
+		y: v.y * m,
+		x: v.x * m,
+	}
+}
+
 type AntennaLayout struct {
 	areaHeight      int
 	areaWidth       int
@@ -103,6 +110,29 @@ func getValidAntinodesForAntennaPair(antennaPair [2]Vector, layout AntennaLayout
 	return antinodes
 }
 
+func getValidAnitnodesForAntennaPairFactoringInHarmonics(antennaPair [2]Vector, layout AntennaLayout) []Vector {
+	antinodes := []Vector{}
+	distance1 := 0
+	for {
+		antinode := addVectors(antennaPair[0], multiplyVector(subtractVectors(antennaPair[0], antennaPair[1]), distance1))
+		if !layout.isVectorWithinArea(antinode) {
+			break
+		}
+		antinodes = append(antinodes, antinode)
+		distance1 += 1
+	}
+	distance2 := 0
+	for {
+		antinode := addVectors(antennaPair[1], multiplyVector(subtractVectors(antennaPair[1], antennaPair[0]), distance2))
+		if !layout.isVectorWithinArea(antinode) {
+			break
+		}
+		antinodes = append(antinodes, antinode)
+		distance2 += 1
+	}
+	return antinodes
+}
+
 func calculateNumOfUniqueAntinodes(input string) (int, error) {
 	antennaLayout := NewAntennaLayout(input)
 	antennaPairs := antennaLayout.createUniqueAntennaPairs()
@@ -111,6 +141,23 @@ func calculateNumOfUniqueAntinodes(input string) (int, error) {
 
 	for _, antennaPair := range antennaPairs {
 		antinodes := getValidAntinodesForAntennaPair(antennaPair, *antennaLayout)
+		for _, antinode := range antinodes {
+			key := fmt.Sprintf("%d_%d", antinode.y, antinode.x)
+			uniqueAntinodesMap[key] = true
+		}
+	}
+
+	return len(uniqueAntinodesMap), nil
+}
+
+func calculateNumOfUniqueAntinodesFactoringInHarmonics(input string) (int, error) {
+	antennaLayout := NewAntennaLayout(input)
+	antennaPairs := antennaLayout.createUniqueAntennaPairs()
+
+	uniqueAntinodesMap := map[string]bool{}
+
+	for _, antennaPair := range antennaPairs {
+		antinodes := getValidAnitnodesForAntennaPairFactoringInHarmonics(antennaPair, *antennaLayout)
 		for _, antinode := range antinodes {
 			key := fmt.Sprintf("%d_%d", antinode.y, antinode.x)
 			uniqueAntinodesMap[key] = true
@@ -130,6 +177,24 @@ func SolveDay8Part1() (int, error) {
 	}
 
 	solution, err := calculateNumOfUniqueAntinodes(string(file))
+
+	if err != nil {
+		return 0, err
+	}
+
+	return solution, nil
+}
+
+func SolveDay8Part2() (int, error) {
+	inputPath := os.Getenv("AOC_INPUT_PATH")
+
+	file, err := os.ReadFile(inputPath)
+
+	if err != nil {
+		return 0, err
+	}
+
+	solution, err := calculateNumOfUniqueAntinodesFactoringInHarmonics(string(file))
 
 	if err != nil {
 		return 0, err
