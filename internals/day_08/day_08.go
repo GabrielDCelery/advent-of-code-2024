@@ -25,14 +25,52 @@ func subtractVectors(v1 Vector, v2 Vector) Vector {
 	}
 }
 
-func createUniqueAntennaPairs(antennaMap map[string][]Vector) [][2]Vector {
+type AntennaLayout struct {
+	areaHeight      int
+	areaWidth       int
+	positionsByType map[string][]Vector
+}
+
+func NewAntennaLayout(input string) *AntennaLayout {
+	positionsByType := map[string][]Vector{}
+	lines := strings.Split(strings.TrimSpace(input), "\n")
+	for y, line := range lines {
+		chars := strings.Split(line, "")
+		for x, char := range chars {
+			if char == "." {
+				continue
+			}
+			_, ok := positionsByType[char]
+			if !ok {
+				positionsByType[char] = []Vector{}
+			}
+			positionsByType[char] = append(positionsByType[char], Vector{y: y, x: x})
+		}
+	}
+	areaHeight := len(lines)
+	areaWidth := len(lines[0])
+	return &AntennaLayout{
+		areaHeight:      areaHeight,
+		areaWidth:       areaWidth,
+		positionsByType: positionsByType,
+	}
+}
+
+func (a *AntennaLayout) isVectorWithinArea(v Vector) bool {
+	return v.y >= 0 && v.y < a.areaHeight && v.x >= 0 && v.x < a.areaWidth
+}
+
+func (a *AntennaLayout) createUniqueAntennaPairs() [][2]Vector {
 	antennaPairsCoveredMap := map[string]bool{}
 	antennaPairs := [][2]Vector{}
 
-	for key := range antennaMap {
-		for a, antennaA := range antennaMap[key] {
-			for b, antennaB := range antennaMap[key] {
-				if a == b {
+	for antennaType := range a.positionsByType {
+		if len(a.positionsByType[antennaType]) < 2 {
+			continue
+		}
+		for i, antennaA := range a.positionsByType[antennaType] {
+			for j, antennaB := range a.positionsByType[antennaType] {
+				if i == j {
 					continue
 				}
 				key1 := fmt.Sprintf("%d_%d_%d_%d", antennaA.y, antennaA.x, antennaB.y, antennaB.x)
@@ -52,7 +90,7 @@ func createUniqueAntennaPairs(antennaMap map[string][]Vector) [][2]Vector {
 	return antennaPairs
 }
 
-func getAntinoeVectorsFromAntennaPair(antennaPair [2]Vector) [2]Vector {
+func getAntinodeVectorsFromAntennaPair(antennaPair [2]Vector) [2]Vector {
 	vec1 := antennaPair[0]
 	vec2 := antennaPair[1]
 
@@ -63,37 +101,18 @@ func getAntinoeVectorsFromAntennaPair(antennaPair [2]Vector) [2]Vector {
 }
 
 func calculateNumOfUniqueAntinodes(input string) (int, error) {
-	antennaMap := map[string][]Vector{}
-	lines := strings.Split(strings.TrimSpace(input), "\n")
-	for y, line := range lines {
-		chars := strings.Split(line, "")
-		for x, char := range chars {
-			if char == "." {
-				continue
-			}
-			_, ok := antennaMap[char]
-			if !ok {
-				antennaMap[char] = []Vector{}
-			}
-			antennaMap[char] = append(antennaMap[char], Vector{y: y, x: x})
-		}
-	}
-
-	antennaPairs := createUniqueAntennaPairs(antennaMap)
-
-	areaHeight := len(lines)
-	areaWidth := len(lines[0])
+	antennaLayout := NewAntennaLayout(input)
+	antennaPairs := antennaLayout.createUniqueAntennaPairs()
 
 	uniqueAntinodesMap := map[string]bool{}
 
 	for _, antennaPair := range antennaPairs {
-		antinodes := getAntinoeVectorsFromAntennaPair(antennaPair)
+		antinodes := []Vector{
+			addVectors(antennaPair[0], subtractVectors(antennaPair[0], antennaPair[1])),
+			addVectors(antennaPair[1], subtractVectors(antennaPair[1], antennaPair[0])),
+		}
 		for _, antinode := range antinodes {
-			isAntinodeWithinArea := antinode.y >= 0 &&
-				antinode.y < areaHeight &&
-				antinode.x >= 0 &&
-				antinode.x < areaWidth
-			if !isAntinodeWithinArea {
+			if !antennaLayout.isVectorWithinArea(antinode) {
 				continue
 			}
 			key := fmt.Sprintf("%d_%d", antinode.y, antinode.x)
