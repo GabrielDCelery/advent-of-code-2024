@@ -25,7 +25,6 @@ type Calibration struct {
 
 type Node struct {
 	value     int
-	total     int
 	operation Operation
 	children  []*Node
 }
@@ -33,7 +32,6 @@ type Node struct {
 func buildDFSForCalibration(components []int, operation Operation, validOperations []Operation) *Node {
 	rootNode := &Node{
 		value:     components[0],
-		total:     0,
 		operation: operation,
 		children:  []*Node{},
 	}
@@ -48,25 +46,26 @@ func buildDFSForCalibration(components []int, operation Operation, validOperatio
 }
 
 func computePossibleTotalsForDFS(node *Node, parentNodeTotal int, totals *[]int) {
+	currentNodeTotal := parentNodeTotal
 	switch node.operation {
 	case Null:
-		node.total = node.value
+		currentNodeTotal = node.value
 	case Multiply:
-		node.total = parentNodeTotal * node.value
+		currentNodeTotal = parentNodeTotal * node.value
 	case Add:
-		node.total = parentNodeTotal + node.value
+		currentNodeTotal = parentNodeTotal + node.value
 	case Concatenate:
 		total, err := strconv.Atoi(fmt.Sprintf("%d%d", parentNodeTotal, node.value))
 		if err != nil {
 			log.Fatalln(err)
 		}
-		node.total = total
+		currentNodeTotal = total
 	}
 	if len(node.children) == 0 {
-		*totals = append(*totals, node.total)
+		*totals = append(*totals, currentNodeTotal)
 	}
 	for _, child := range node.children {
-		computePossibleTotalsForDFS(child, node.total, totals)
+		computePossibleTotalsForDFS(child, currentNodeTotal, totals)
 	}
 }
 
