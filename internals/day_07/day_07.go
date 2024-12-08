@@ -6,6 +6,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"sync"
 )
 
 type Operation int
@@ -114,17 +115,48 @@ func doesCalibrationProducesTestResult(calibration Calibration, validOperations 
 
 func sumCalibrationsThatPassTest(input string, validOperations []Operation) (int, error) {
 	lines := strings.Split(strings.TrimSpace(input), "\n")
-	total := 0
+	var wg sync.WaitGroup
+	resultsChan := make(chan int)
+	errorChan := make(chan error)
 	for _, line := range lines {
-		calibration, err := transformInputLineToCalibration(line)
-		if err != nil {
-			return 0, err
-		}
-		if doesCalibrationProducesTestResult(calibration, validOperations) {
-			total += calibration.target
+		wg.Add(1)
+		go func(wg *sync.WaitGroup, resultsChan chan int, errorChan chan error) {
+			defer wg.Done()
+			calibration, err := transformInputLineToCalibration(line)
+			if err != nil {
+				errorChan <- err
+				return
+			}
+			if doesCalibrationProducesTestResult(calibration, validOperations) {
+				resultsChan <- calibration.target
+				return
+			}
+			resultsChan <- 0
+		}(&wg, resultsChan, errorChan)
+	}
+	go func(wg *sync.WaitGroup, resultsChan chan int, errorChan chan error) {
+		wg.Wait()
+		close(resultsChan)
+		close(errorChan)
+	}(&wg, resultsChan, errorChan)
+	total := 0
+	for {
+		select {
+		case result, ok := <-resultsChan:
+			if !ok {
+				return total, nil
+			}
+			total += result
+		case err, ok := <-errorChan:
+			if !ok {
+				return total, nil
+			}
+			if err != nil {
+				return 0, err
+			}
+		default:
 		}
 	}
-	return total, nil
 }
 
 func SolveDay7Part1() (int, error) {
