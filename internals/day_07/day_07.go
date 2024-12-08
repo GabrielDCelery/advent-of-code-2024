@@ -44,7 +44,7 @@ func buildDFSForCalibration(components []int, operation Operation, validOperatio
 	return rootNode
 }
 
-func doesDFSHasAPathThatAddsUpToTotals(node *Node, target int, parentNodeTotal int, hasFoundTarget *bool) {
+func doesDFSHasAPathThatAddsUpToTarget(node *Node, target int, parentNodeTotal int, hasFoundTarget *bool) {
 	// if we found the target number there is no need to continue traversing the tree
 	if *hasFoundTarget == true {
 		return
@@ -70,7 +70,7 @@ func doesDFSHasAPathThatAddsUpToTotals(node *Node, target int, parentNodeTotal i
 	// if there are move child nodes continue traversing
 	if len(node.children) > 0 {
 		for _, child := range node.children {
-			doesDFSHasAPathThatAddsUpToTotals(child, target, currentNodeTotal, hasFoundTarget)
+			doesDFSHasAPathThatAddsUpToTarget(child, target, currentNodeTotal, hasFoundTarget)
 		}
 		return
 	}
@@ -108,7 +108,7 @@ func transformInputLineToCalibration(line string) (Calibration, error) {
 func doesCalibrationProducesTestResult(calibration Calibration, validOperations []Operation) bool {
 	rootNode := buildDFSForCalibration(calibration.components, Null, validOperations)
 	hasFoundTarget := false
-	doesDFSHasAPathThatAddsUpToTotals(rootNode, calibration.target, 0, &hasFoundTarget)
+	doesDFSHasAPathThatAddsUpToTarget(rootNode, calibration.target, 0, &hasFoundTarget)
 	return hasFoundTarget
 }
 
