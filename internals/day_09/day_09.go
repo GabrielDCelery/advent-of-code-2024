@@ -50,6 +50,57 @@ func deFragmentDiskSpace(diskSpace []int) {
 	}
 }
 
+func deFragmentDiskSpaceInBlocks(diskSpace []int) {
+	fileLocations := map[int][]int{}
+	maxFileID := 0
+	for i, value := range diskSpace {
+		if value == -1 {
+			continue
+		}
+		maxFileID = value
+		_, ok := fileLocations[value]
+		if !ok {
+			fileLocations[value] = []int{i, i}
+		}
+		fileLocations[value][1] = i
+	}
+
+	for i := range maxFileID + 1 {
+		fileIDToMove := maxFileID - i
+		fileToMoveLocation := fileLocations[fileIDToMove]
+		fileToMoveSize := fileToMoveLocation[1] - fileToMoveLocation[0] + 1
+		pointerA := 0
+		pointerB := 0
+		for {
+			if pointerA == fileToMoveLocation[0] {
+				break
+			}
+			if diskSpace[pointerA] != -1 {
+				pointerA += 1
+				pointerB = pointerA
+				continue
+			}
+			emptySpaceSize := pointerB - pointerA
+			if emptySpaceSize == fileToMoveSize {
+				for i := range emptySpaceSize {
+					diskSpace[pointerA+i] = fileIDToMove
+				}
+				for i := range fileToMoveSize {
+					diskSpace[fileToMoveLocation[0]+i] = -1
+				}
+				pointerA = 0
+				pointerB = 0
+				break
+			}
+			if diskSpace[pointerB] != -1 {
+				pointerA = pointerB
+				continue
+			}
+			pointerB += 1
+		}
+	}
+}
+
 func calculateCheckSumForDiskSpace(diskSpace []int) int {
 	total := 0
 	for i, value := range diskSpace {
@@ -60,12 +111,22 @@ func calculateCheckSumForDiskSpace(diskSpace []int) int {
 	return total
 }
 
-func calculateFileSystemChecksum(input string) (int, error) {
+func calculateFileSystemChecksumV1(input string) (int, error) {
 	diskSpace, err := transformStringToDiskSpace(input)
 	if err != nil {
 		return 0, err
 	}
 	deFragmentDiskSpace(diskSpace)
+	total := calculateCheckSumForDiskSpace(diskSpace)
+	return total, nil
+}
+
+func calculateFileSystemChecksumV2(input string) (int, error) {
+	diskSpace, err := transformStringToDiskSpace(input)
+	if err != nil {
+		return 0, err
+	}
+	deFragmentDiskSpaceInBlocks(diskSpace)
 	total := calculateCheckSumForDiskSpace(diskSpace)
 	return total, nil
 }
@@ -79,7 +140,25 @@ func SolveDay9Part1() (int, error) {
 		return 0, err
 	}
 
-	solution, err := calculateFileSystemChecksum(strings.TrimSpace(string(file)))
+	solution, err := calculateFileSystemChecksumV1(strings.TrimSpace(string(file)))
+
+	if err != nil {
+		return 0, err
+	}
+
+	return solution, nil
+}
+
+func SolveDay9Part2() (int, error) {
+	inputPath := os.Getenv("AOC_INPUT_PATH")
+
+	file, err := os.ReadFile(inputPath)
+
+	if err != nil {
+		return 0, err
+	}
+
+	solution, err := calculateFileSystemChecksumV2(strings.TrimSpace(string(file)))
 
 	if err != nil {
 		return 0, err
