@@ -53,10 +53,9 @@ func deFragmentDiskSpace(diskSpace []int) {
 func calculateCheckSumForDiskSpace(diskSpace []int) int {
 	total := 0
 	for i, value := range diskSpace {
-		if value == -1 {
-			break
+		if value != -1 {
+			total += i * int(value)
 		}
-		total += i * int(value)
 	}
 	return total
 }
