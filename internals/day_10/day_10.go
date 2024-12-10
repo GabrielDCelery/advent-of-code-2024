@@ -86,10 +86,6 @@ func findValidUniquePathsForTrailHead(area [][]int, trailHead Vector) [][]Vector
 	return validPaths
 }
 
-func countNumberOfPositionsReachableForTrailhead(area [][]int, trailHead Vector) int {
-	return 0
-}
-
 func calculateAndSumTrailHeadScores(input string) (int, error) {
 	area, err := createAreaFromInput(input)
 
