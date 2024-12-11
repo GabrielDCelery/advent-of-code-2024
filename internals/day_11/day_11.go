@@ -5,6 +5,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"sync"
 )
 
 type Stone struct {
@@ -23,7 +24,9 @@ func NewStone(value int, blinkCount int, parent *Stone) *Stone {
 	}
 }
 
-func calculateNumOfStonesForNumber(number int, targetBlinkCount int) int {
+func calculateNumOfStonesForNumber(wg *sync.WaitGroup, number int, targetBlinkCount int) int {
+	defer wg.Done()
+
 	stoneCount := 0
 
 	currentStone := NewStone(number, 0, nil)
@@ -79,13 +82,29 @@ func blinkNTimesAndCountNumberOfStones(input string, targetBlinkCount int) (int,
 		numbers = append(numbers, number)
 	}
 
-	stoneCount := 0
+	var wg sync.WaitGroup
+
+	stoneCountChan := make(chan int)
 
 	for _, number := range numbers {
-		stoneCount += calculateNumOfStonesForNumber(number, targetBlinkCount)
+		wg.Add(1)
+		go func(wgPtr *sync.WaitGroup, stoneCountChan chan int, number int) {
+			stoneCountChan <- calculateNumOfStonesForNumber(wgPtr, number, targetBlinkCount)
+		}(&wg, stoneCountChan, number)
 	}
 
-	return stoneCount, nil
+	go func(wgPtr *sync.WaitGroup, stoneCountChan chan int) {
+		wgPtr.Wait()
+		close(stoneCountChan)
+	}(&wg, stoneCountChan)
+
+	totalStoneCount := 0
+
+	for stoneCount := range stoneCountChan {
+		totalStoneCount += stoneCount
+	}
+
+	return totalStoneCount, nil
 }
 
 func SolveDay11Part1() (int, error) {
