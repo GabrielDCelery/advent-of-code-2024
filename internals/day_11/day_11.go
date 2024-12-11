@@ -23,6 +23,49 @@ func NewStone(value int, blinkCount int, parent *Stone) *Stone {
 	}
 }
 
+func calculateNumOfStonesForNumber(number int, targetBlinkCount int) int {
+	stoneCount := 0
+
+	currentStone := NewStone(number, 0, nil)
+
+	for {
+		if currentStone.blinkCount == targetBlinkCount {
+			stoneCount += 1
+			if currentStone.parent == nil {
+				break
+			} else {
+				childStone := currentStone
+				currentStone = currentStone.parent
+				currentStone.child = nil
+				childStone.parent = nil
+				continue
+			}
+		}
+
+		if currentStone.value == 0 {
+			currentStone.value = 1
+			currentStone.blinkCount += 1
+			continue
+		}
+
+		numOfDecimalDigits := int(math.Log10(float64(currentStone.value))) + 1
+		if numOfDecimalDigits%2 == 0 {
+			divider := int(math.Pow10(numOfDecimalDigits / 2))
+			left := currentStone.value % divider
+			right := int(math.Floor(float64(currentStone.value / divider)))
+			currentStone.value = left
+			currentStone.blinkCount += 1
+			currentStone = NewStone(right, currentStone.blinkCount, currentStone)
+			continue
+		}
+
+		currentStone.value = currentStone.value * 2024
+		currentStone.blinkCount += 1
+	}
+
+	return stoneCount
+}
+
 func blinkNTimesAndCountNumberOfStones(input string, targetBlinkCount int) (int, error) {
 	numbersAsStr := strings.Split(strings.TrimSpace(input), " ")
 
@@ -39,42 +82,7 @@ func blinkNTimesAndCountNumberOfStones(input string, targetBlinkCount int) (int,
 	stoneCount := 0
 
 	for _, number := range numbers {
-		currentStone := NewStone(number, 0, nil)
-
-		for {
-			if currentStone.blinkCount == targetBlinkCount {
-				stoneCount += 1
-				if currentStone.parent == nil {
-					break
-				} else {
-					childStone := currentStone
-					currentStone = currentStone.parent
-					currentStone.child = nil
-					childStone.parent = nil
-					continue
-				}
-			}
-
-			if currentStone.value == 0 {
-				currentStone.value = 1
-				currentStone.blinkCount += 1
-				continue
-			}
-
-			numOfDecimalDigits := int(math.Log10(float64(currentStone.value))) + 1
-			if numOfDecimalDigits%2 == 0 {
-				divider := int(math.Pow10(numOfDecimalDigits / 2))
-				left := currentStone.value % divider
-				right := int(math.Floor(float64(currentStone.value / divider)))
-				currentStone.value = left
-				currentStone.blinkCount += 1
-				currentStone = NewStone(right, currentStone.blinkCount, currentStone)
-				continue
-			}
-
-			currentStone.value = currentStone.value * 2024
-			currentStone.blinkCount += 1
-		}
+		stoneCount += calculateNumOfStonesForNumber(number, targetBlinkCount)
 	}
 
 	return stoneCount, nil
