@@ -1,7 +1,7 @@
 package day_11
 
 import (
-	"fmt"
+	"math"
 	"os"
 	"strconv"
 	"strings"
@@ -47,7 +47,10 @@ func blinkNTimesAndCountNumberOfStones(input string, targetBlinkCount int) (int,
 				if currentStone.parent == nil {
 					break
 				} else {
+					childStone := currentStone
 					currentStone = currentStone.parent
+					currentStone.child = nil
+					childStone.parent = nil
 					continue
 				}
 			}
@@ -58,17 +61,11 @@ func blinkNTimesAndCountNumberOfStones(input string, targetBlinkCount int) (int,
 				continue
 			}
 
-			str := fmt.Sprintf("%d", currentStone.value)
-			if len(str)%2 == 0 {
-				mid := len(str) / 2
-				left, err := strconv.Atoi(str[mid:])
-				if err != nil {
-					return 0, err
-				}
-				right, err := strconv.Atoi(str[:mid])
-				if err != nil {
-					return 0, err
-				}
+			numOfDecimalDigits := int(math.Log10(float64(currentStone.value))) + 1
+			if numOfDecimalDigits%2 == 0 {
+				divider := int(math.Pow10(numOfDecimalDigits / 2))
+				left := currentStone.value % divider
+				right := int(math.Floor(float64(currentStone.value / divider)))
 				currentStone.value = left
 				currentStone.blinkCount += 1
 				currentStone = NewStone(right, currentStone.blinkCount, currentStone)
