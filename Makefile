@@ -60,3 +60,8 @@ solve-day-10:
 solve-day-11:
 	@go build -ldflags="-s -w" -o ./.bin/day-11 ./cmd/day_11/main.go
 	@AOC_INPUT_PATH=$$(readlink -f ./inputs/input-day-11.txt) ./.bin/day-11
+
+.PHONY: solve-day-13
+solve-day-13:
+	@go build -ldflags="-s -w" -o ./.bin/day-13 ./cmd/day_13/main.go
+	@AOC_INPUT_PATH=$$(readlink -f ./inputs/input-day-13.txt) ./.bin/day-13
